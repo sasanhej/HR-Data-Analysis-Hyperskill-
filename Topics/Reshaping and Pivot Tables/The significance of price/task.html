@@ -1,0 +1,20 @@
+<h2>The significance of price</h2>
+<div class="step-text">
+<p></p>
+<p>Take a look at the wine dataset:</p>
+<pre><code class="language-python">df.head()</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+-------+--------------------------+---------+----------+
+|       | variety                  |   price |   points |
+|-------+--------------------------+---------+----------|
+| 26762 | Cabernet Sauvignon       |      45 |       91 |
+| 15006 | Pinot Noir               |      41 |       94 |
+| 25680 | Pinot Noir               |      40 |       91 |
+| 16316 | Bordeaux-style Red Blend |      32 |       88 |
+|  2916 | Pinot Noir               |      28 |       91 |
++-------+--------------------------+---------+----------+</code></pre>
+<p>Print one instruction to find the mean points by the variety and price. As the price varies, divide them into 4 categories. The easiest way to achieve it is to use <code class="language-python">pd.cut()</code> with the proper parameters:</p>
+<pre><code class="language-python">pd.cut(df.price, bins=[10, 20, 30, 40, 50])</code></pre>
+<p>The first argument here is the series we divide, and the second — an array of border values for the categories.</p>
+<p>You can pass it directly to the <code class="language-python">columns</code> argument.</p><br><br><font color="gray">Memory limit: 256 MB</font><br><font color="gray">Time limit: 15 seconds</font><br><br>
+</div>

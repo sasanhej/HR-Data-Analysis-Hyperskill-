@@ -1,0 +1,12 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    # your code here. the dataset is already loaded as food_calories_df.
+    print(...)
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/15875#comment
+status: Solved
+record: -1
+submission_language: python3

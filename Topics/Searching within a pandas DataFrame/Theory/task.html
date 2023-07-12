@@ -1,0 +1,141 @@
+<h2>Searching within a pandas DataFrame</h2>
+<div class="step-text">
+<p>In this topic, we will discuss advanced searching techniques. At first, we will learn how to find values by their occurrence or absence in a set. We will also select an entire DataFrame and replace all rows that do not satisfy a certain condition. And in the end, we will take a look at the SQL-like syntax for data searching.</p>
+<p>As always, we import <code class="language-python">pandas</code> first and create a DataFrame from a dictionary:</p>
+<pre><code class="language-python">import pandas as pd
+
+australian_weather = {
+ 'date': {0: '2017-06-16', 1: '2017-03-28', 2: '2017-02-16',
+  3: '2017-05-14', 4: '2017-05-20', 5: '2017-03-14', 6: '2017-01-19', 7: '2017-04-12'},
+ 'location': {0: 'Perth', 1: 'Perth', 2: 'Melbourne', 3: 'Sydney', 4: 'Canberra',
+  5: 'Sydney', 6: 'Melbourne', 7: 'Canberra'},
+ 'min_temp': {0: 6.5, 1: 9.5, 2: 14.9, 3: 14.7, 4: 8.8, 5: 22.6, 6: 11.0, 7: 5.3},
+ 'max_temp': {0: 21.2, 1: 22.9, 2: 23.6, 3: 18.7, 4: 17.8, 5: 25.9, 6: 23.4, 7: 20.8},
+ 'rain_today': {0: 'No', 1: 'No', 2: 'No', 3: 'No', 4: 'Yes', 5: 'No', 6: 'No', 7: 'No'}
+ }
+df = pd.DataFrame(australian_weather)
+df.head()</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  0 | 2017-06-16 | Perth      |        6.5 |       21.2 | No           |
+|  1 | 2017-03-28 | Perth      |        9.5 |       22.9 | No           |
+|  2 | 2017-02-16 | Melbourne  |       14.9 |       23.6 | No           |
+|  3 | 2017-05-14 | Sydney     |       14.7 |       18.7 | No           |
+|  4 | 2017-05-20 | Canberra   |        8.8 |       17.8 | Yes          |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>This is a sample from the Australian weather dataset.</p>
+<h5 id="set-occurrence-search">Set occurrence search</h5>
+<p>You may have been in the situations when you need to sort a column by something else than the trivial <code class="language-python">==</code>, <code class="language-python">&gt;</code>, <code class="language-python">&lt;</code>, <code class="language-python">&gt;=</code>, <code class="language-python">&lt;=</code> operators. Apart from them, we can opt for another common operation that can help find out whether a cell takes a certain value. To be more specific, we need to select several cities: Perth, Sydney, and Canberra. The code would look like this:</p>
+<pre><code class="language-python">df[(df.location == 'Perth') | (df.location == 'Sydney') | (df.location == 'Canberra')]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  0 | 2017-06-16 | Perth      |        6.5 |       21.2 | No           |
+|  1 | 2017-03-28 | Perth      |        9.5 |       22.9 | No           |
+|  3 | 2017-05-14 | Sydney     |       14.7 |       18.7 | No           |
+|  4 | 2017-05-20 | Canberra   |        8.8 |       17.8 | Yes          |
+|  5 | 2017-03-14 | Sydney     |       22.6 |       25.9 | No           |
+|  7 | 2017-04-12 | Canberra   |        5.3 |       20.8 | No           |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>That notation secures the bag, but what if we had about 100 cities to filter? If we have so many possible cell values, we have to store them in a collection, a Python list, for example. This fact leads to the following question: "is a certain value in the list or not?" This is where the <code class="language-python">.isin()</code> method comes into play:</p>
+<pre><code class="language-python">desired_cities = ['Perth', 'Sydney', 'Canberra']
+df.location.isin(desired_cities)</code></pre>
+<p>We get the boolean DataFrame as a result:</p>
+<pre><code class="language-no-highlight">0     True
+1     True
+2    False
+3     True
+4     True
+5     True
+6    False
+7     True
+Name: location, dtype: bool</code></pre>
+<p> </p>
+<p>Now, let's use it as a condition to select the required rows:</p>
+<pre><code class="language-python">desired_cities = ['Perth', 'Sydney', 'Canberra']
+df[df.location.isin(desired_cities)]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  0 | 2017-06-16 | Perth      |        6.5 |       21.2 | No           |
+|  1 | 2017-03-28 | Perth      |        9.5 |       22.9 | No           |
+|  3 | 2017-05-14 | Sydney     |       14.7 |       18.7 | No           |
+|  4 | 2017-05-20 | Canberra   |        8.8 |       17.8 | Yes          |
+|  5 | 2017-03-14 | Sydney     |       22.6 |       25.9 | No           |
+|  7 | 2017-04-12 | Canberra   |        5.3 |       20.8 | No           |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>Yep, it brings up the same result. This code, however, is much more readable and versatile. In case you have to exclude the results that appear in a list, just place the Tilda sign <code class="language-python">~</code> before the expression (like with other reversals):</p>
+<pre><code class="language-python">df[~df.location.isin(desired_cities)]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  2 | 2017-02-16 | Melbourne  |       14.9 |       23.6 | No           |
+|  6 | 2017-01-19 | Melbourne  |       11   |       23.4 | No           |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>We got all rows where the <span style="color: #000000;">craved-for</span> value is not in the <code class="language-python">desired_cities</code> list.</p>
+<h5 id="how-to-replace-a-value">How to replace a value</h5>
+<p>Apart from selecting rows by a condition, you can also change the values in the rows that don't match the condition. Pandas has the <code class="language-python">pd.where()</code> method for this. Let's take a subset from our example DataFrame and show how it works:</p>
+<pre><code class="language-python">df[['min_temp', 'max_temp']].where(df.min_temp &gt; 10)</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+
+|    |   min_temp |   max_temp |
+|----+------------+------------|
+|  0 |      nan   |      nan   |
+|  1 |      nan   |      nan   |
+|  2 |       14.9 |       23.6 |
+|  3 |       14.7 |       18.7 |
+|  4 |      nan   |      nan   |
+|  5 |       22.6 |       25.9 |
+|  6 |       11   |       23.4 |
+|  7 |      nan   |      nan   |
++----+------------+------------+</code></pre>
+<p>We take two columns, employ the <code class="language-python">.where()</code> method, and set the condition as the first and only argument. All rows that don't fall under this condition are replaced with <code class="language-python">NaN</code> by default. It's possible to set another value for replacement:</p>
+<pre><code class="language-python">df[['min_temp', 'max_temp']].where(df.min_temp &gt; 10, 'min temp too low')</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------------+------------------+
+|    | min_temp         | max_temp         |
+|----+------------------+------------------|
+|  0 | min temp too low | min temp too low |
+|  1 | min temp too low | min temp too low |
+|  2 | 14.9             | 23.6             |
+|  3 | 14.7             | 18.7             |
+|  4 | min temp too low | min temp too low |
+|  5 | 22.6             | 25.9             |
+|  6 | 11.0             | 23.4             |
+|  7 | min temp too low | min temp too low |
++----+------------------+------------------+</code></pre>
+<p>We set the replacing value as the <code class="language-python">min temp too low</code> string as the second argument, and it takes place<strong> </strong>in every row and column where the <code class="language-python">min_temp</code> value is lower than <code class="language-python">10</code>.</p>
+<p><strong>Tip:</strong> The <code class="language-python">.where()</code> method also has the <code class="language-python">inplace</code> argument</p>
+<h5 id="boolean-expression-query">Boolean expression query</h5>
+<p>Let's conclude this topic with a different way of searching — it's our favorite, and I hope you'll like it, too. As before, we start with the regular syntax to indicate a condition:</p>
+<pre><code class="language-python">df[(df.location == 'Perth') &amp; (df.max_temp &gt; 22)]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  1 | 2017-03-28 | Perth      |        9.5 |       22.9 | No           |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>We get the rows where <code class="language-python">location</code> is <code class="language-python">Perth</code> with <code class="language-python">max_temp</code> being greater than 22. Now, let's rewrite the same with <code class="language-python">.query()</code>. In this notation, we use only column names and don't need to add extra parenthesis to separate the comparison and logic operations:</p>
+<pre><code class="language-python">df.query("location == 'Perth' &amp; max_temp &gt; 22")</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+------------+------------+------------+------------+--------------+
+|    | date       | location   |   min_temp |   max_temp | rain_today   |
+|----+------------+------------+------------+------------+--------------|
+|  1 | 2017-03-28 | Perth      |        9.5 |       22.9 | No           |
++----+------------+------------+------------+------------+--------------+</code></pre>
+<p>The output is the same, but the line is a bit shorter due to the lack of additional parentheses. With longer and more complex conditions, we advise you to place them for readability, for example, <code class="language-python">"(location == 'Perth') &amp; (max_temp &gt; 22)"</code>.<br/>
+What's the point of <code class="language-python">.query()</code>? In real-life Jupyter notebooks, there are almost no <code class="language-python">df</code> DataFrames because giving a meaningless name is a bad practice. Meaningless names are not that long, but their constant repetitions in dot notation make the code cumbersome.</p>
+<p><strong>Tip:</strong> With <code class="language-python">.query()</code>, surround the column names that contain spaces with <code class="language-python">`</code> (backticks).</p>
+<h5 id="conclusion">Conclusion</h5>
+<p>Let's conclude what we've learned:</p>
+<ul>
+<li>how <code class="language-python">.isin()</code> can help select the rows by occurrence in a list;</li>
+<li>how to select and replace irrelevant values with <code class="language-python">.where()</code>;</li>
+<li>how to perform awesome conditional searching with <code class="language-python">.query()</code>.</li>
+</ul>
+</div>

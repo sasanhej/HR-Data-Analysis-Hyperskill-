@@ -1,0 +1,20 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: It replaces values with another value when the condition is False
+- text: It replaces values greater than another value
+- text: It replaces values with NaN when the condition is False
+- text: It replaces values only with NaN when the condition is True
+- text: It replaces values with another value when the condition is True
+files:
+- name: main.py
+  visible: true
+  text: |+
+    #  You can experiment here, it won’t be checked
+
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/15870#comment
+status: Solved
+record: -1
+custom_name: What? Where?
+local_check: false

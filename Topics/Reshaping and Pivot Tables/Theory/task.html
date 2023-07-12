@@ -1,0 +1,182 @@
+<h2>Reshaping and Pivot Tables</h2>
+<div class="step-text">
+<p>Data reshaping can simplify the process of data computing/analyzing. It's very easy to turn categorical columns into rows and vice versa with Pandas.</p>
+<p>Automatically collected data (for example, a log of user actions or an aircraft flight recorder) usually have a flat structure, also known as "stacked" or "long". It often has an ordinal index, and every column reflects an attribute of a described object/process. That's why the word "features" in Machine Learning is used. The columns contain feature values. <br/>
+This data is easy to process, but hard to evaluate at first glance.</p>
+<p style="text-align: center;"><img alt="The structural difference between unstacked and stacked dataframes" height="303" src="https://ucarecdn.com/fe16e27c-a341-4551-9b84-e0e56bb2d329/" width="600"/></p>
+<p>Let's start with the very basic reshaping. When you need to quickly transform your data into a readable (and office-management favorite) format, use the <code class="language-python">.pivot()</code> method.</p>
+<h5 id="dataframepivot">DataFrame.pivot</h5>
+<p>Let's consider a simple example below. The Flights dataset shows how many people traveled by air from 1949 to 1960 by month. It can be imported from GitHub with one line (requires internet connection):</p>
+<pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/flights.csv')
+df.head()</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+--------+----------+--------------+
+|    |   year | month    |   passengers |
+|----+--------+----------+--------------|
+|  0 |   1949 | January  |          112 |
+|  1 |   1949 | February |          118 |
+|  2 |   1949 | March    |          132 |
+|  3 |   1949 | April    |          129 |
+|  4 |   1949 | May      |          121 |
++----+--------+----------+--------------+</code></pre>
+<p>This dataset contains 144 rows. It's quite difficult to look at them at once. We can apply the following:</p>
+<pre><code class="language-python">df.pivot(index='year', columns='month', values='passengers')</code></pre>
+<p>Output:<br/>
+</p>
+<pre><code class="language-no-highlight">+--------+---------+----------+------------+------------+-----------+--------+--------+---------+-------+------------+-----------+-------------+
+|  month |   April |   August |   December |   February |   January |   July |   June |   March |   May |   November |   October |   September |
+|   year |         |          |            |            |           |        |        |         |       |            |           |             |
+|--------+---------+----------+------------+------------+-----------+--------+--------+---------+-------+------------+-----------+-------------|
+|   1949 |     129 |      148 |        118 |        118 |       112 |    148 |    135 |     132 |   121 |        104 |       119 |         136 |
+|   1950 |     135 |      170 |        140 |        126 |       115 |    170 |    149 |     141 |   125 |        114 |       133 |         158 |
+|   1951 |     163 |      199 |        166 |        150 |       145 |    199 |    178 |     178 |   172 |        146 |       162 |         184 |
+|   1952 |     181 |      242 |        194 |        180 |       171 |    230 |    218 |     193 |   183 |        172 |       191 |         209 |
+|   1953 |     235 |      272 |        201 |        196 |       196 |    264 |    243 |     236 |   229 |        180 |       211 |         237 |
+|   1954 |     227 |      293 |        229 |        188 |       204 |    302 |    264 |     235 |   234 |        203 |       229 |         259 |
+|   1955 |     269 |      347 |        278 |        233 |       242 |    364 |    315 |     267 |   270 |        237 |       274 |         312 |
+|   1956 |     313 |      405 |        306 |        277 |       284 |    413 |    374 |     317 |   318 |        271 |       306 |         355 |
+|   1957 |     348 |      467 |        336 |        301 |       315 |    465 |    422 |     356 |   355 |        305 |       347 |         404 |
+|   1958 |     348 |      505 |        337 |        318 |       340 |    491 |    435 |     362 |   363 |        310 |       359 |         404 |
+|   1959 |     396 |      559 |        405 |        342 |       360 |    548 |    472 |     406 |   420 |        362 |       407 |         463 |
+|   1960 |     461 |      606 |        432 |        391 |       417 |    622 |    535 |     419 |   472 |        390 |       461 |         508 |
++--------+---------+----------+------------+------------+-----------+--------+--------+---------+-------+------------+-----------+-------------+</code></pre>
+<p>Now we can see them all together to get some insights! For example, summertime flights were popular from the beginning and their number grew faster.<br/>
+As you can see there are a couple of changes:</p>
+<ol>
+<li>Index and columns now have names: "year" and "month".</li>
+<li>The "year" column is now the index.</li>
+<li>The "month" has been transformed into columns.</li>
+<li>Each passenger value is now located where a year and a month collide.</li>
+</ol>
+<p>All further methods are Pandas functions. The first argument (the data argument) needs to be passed to the processed dataframe. It produces the same result:</p>
+<pre><code class="language-python">pd.pivot(df, index='year', columns='month', values='passengers')</code></pre>
+<p>However, if you need to build a pivot table with aggregation, for example, when there are dimension duplicates for rows and columns (one <code class="language-python">index</code>/<code class="language-python">columns</code> pair corresponds to more than one <code class="language-python">value</code> ), you should use <code class="language-python">.pivot_table ()</code></p>
+<h5 id="dataframepivot_table">DataFrame.pivot_table</h5>
+<p>This method allows you to build pivot tables with data aggregation. If every <code class="language-python">index</code>/<code class="language-python">columns</code> pair corresponds to only one value<em> </em>then the results are similar to the <code class="language-python">.pivot()</code> method. For example, we take a bit more complex dataset called "mpg" (miles per gallon) that contains cars from the past century and their specs.</p>
+<pre><code class="language-python">df = pd.read_csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/mpg.csv')
+df.head()</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+-------+-------------+----------------+--------------+----------+----------------+--------------+----------+---------------------------+
+|    |   mpg |   cylinders |   displacement |   horsepower |   weight |   acceleration |   model_year | origin   | name                      |
+|----+-------+-------------+----------------+--------------+----------+----------------+--------------+----------+---------------------------|
+|  0 |    18 |           8 |            307 |          130 |     3504 |           12   |           70 | usa      | chevrolet chevelle malibu |
+|  1 |    15 |           8 |            350 |          165 |     3693 |           11.5 |           70 | usa      | buick skylark 320         |
+|  2 |    18 |           8 |            318 |          150 |     3436 |           11   |           70 | usa      | plymouth satellite        |
+|  3 |    16 |           8 |            304 |          150 |     3433 |           12   |           70 | usa      | amc rebel sst             |
+|  4 |    17 |           8 |            302 |          140 |     3449 |           10.5 |           70 | usa      | ford torino               |
++----+-------+-------------+----------------+--------------+----------+----------------+--------------+----------+---------------------------+</code></pre>
+<p>Suppose, we have to find the mean horsepower number of the cars presented by country and year. The <code class="language-python">.pivot_table()</code> should contain an aggregator in the <code class="language-python">aggfunc</code> argument. It finds the mean value by default. We need to specify the required values of the <code class="language-python">index</code> and <code class="language-python">columns</code> and we will round the results up to 1 decimal for neatness:</p>
+<pre><code class="language-python">df.pivot_table(index='origin', columns='model_year', values='horsepower').round(1)</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+------+------+------+
+|model year|    70 |    71 |    72 |    73 |    74 |    75 |    76 |    77 |    78 |    79 |   80 |   81 |   82 |
+|origin    |       |       |       |       |       |       |       |       |       |       |      |      |      |
+|----------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+------+------+------|
+| europe   |  86.2 |  74   |  79.6 |  81.9 |  74.2 |  89.5 |  87.6 |  81   |  99.2 |  72   | 66.8 | 76.7 | 63   |
+| japan    |  91.5 |  79.2 |  93.8 |  98.5 |  72.5 |  80.2 |  76.5 |  81.2 |  79.2 |  65   | 78.8 | 78.3 | 74   |
+| usa      | 167   | 119.8 | 138.8 | 146.6 | 112.1 | 108.7 | 110.5 | 118.4 | 107.3 | 109.4 | 88.8 | 84.5 | 86.9 |
++----------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------+------+------+------+</code></pre>
+<p>The changes are similar to the <code class="language-python">.pivot()</code> case, except that at the intersection of an origin country and a model year, we got the horsepower mean for that year and country.</p>
+<p>You may be wondering: "Why on earth do I need those pivot tables when I could do grouping and aggregations without them?!"<br/>
+To show you why let's try to implement the following request: "In which year(s) the median horsepower of Japanese cars was less than of the European?" Without a pivot table, the solution could look like this:</p>
+<pre><code class="language-python">japan = df.query("origin == 'japan'")\
+          .groupby(['model_year'])\
+          .agg({'horsepower':'median'})
+merged_median_hp = df.query("origin == 'europe'")\
+                     .groupby(['model_year'])\
+                     .agg({'horsepower':'median'})\
+                     .merge(japan, 
+                            on='model_year', 
+                            suffixes=['_europe', '_japan'])
+merged_median_hp.loc[merged_median_hp.horsepower_europe &gt; merged_median_hp.horsepower_japan]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+--------------+---------------------+--------------------+
+|              |   horsepower_europe |   horsepower_japan |
+|   model_year |                     |                    |
+|--------------+---------------------+--------------------|
+|           74 |                75   |               66   |
+|           75 |                91.5 |               85.5 |
+|           76 |                84.5 |               72.5 |
+|           77 |                78   |               72.5 |
+|           78 |               109   |               82.5 |
+|           79 |                71   |               65   |
+|           81 |                76   |               71   |
++--------------+---------------------+--------------------+</code></pre>
+<p>Here, a separate data frame is created with Japanese cars grouped by year, then a part of the original data frame with European machines grouped by year is taken, and merged with Japanese ones in another data frame. After that, the required lines are selected with <code class="language-python">.loc</code>. But we could have done it with <code class="language-python">.pivot_table()</code> instead:</p>
+<pre><code class="language-python">pivot_median_hp = df.pivot_table(index='model_year', 
+                               columns='origin', 
+                               values='horsepower',
+                               aggfunc='median')
+pivot_median_hp.loc[pivot_median_hp.europe &gt; pivot_median_hp.japan, 
+                    ['europe', 'japan']]</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+--------------+----------+---------+
+|       origin |   europe |   japan |
+|   model_year |          |         |
+|--------------+----------+---------|
+|           74 |     75   |    66   |
+|           75 |     91.5 |    85.5 |
+|           76 |     84.5 |    72.5 |
+|           77 |     78   |    72.5 |
+|           78 |    109   |    82.5 |
+|           79 |     71   |    65   |
+|           81 |     76   |    71   |
++--------------+----------+---------+</code></pre>
+<p>Pivot and locate. That's brilliant.</p>
+<p><strong>Tip:</strong> You can create multi-index and multi-level columns by passing lists with field names to the <code class="language-python">index</code> and <code class="language-python">columns</code> arguments.</p>
+<h5 id="dataframemelt">DataFrame.melt</h5>
+<p>If our data is pivoted and we want to make it flat, we can use the <code class="language-python">.melt()</code> method. Let's create a sample <code class="language-python">wide_df</code>:</p>
+<pre><code class="language-python">wide_df = df.pivot_table(index='origin', columns='model_year', values='horsepower').round(2)
+wide_df.reset_index(inplace=True)</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+----------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+-------+-------+-------+
+|    | origin   |     70 |     71 |     72 |     73 |     74 |     75 |     76 |     77 |     78 |     79 |    80 |    81 |    82 |
+|----+----------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+-------+-------+-------|
+|  0 | europe   |  86.2  |  74    |  79.6  |  81.86 |  74.17 |  89.5  |  87.62 |  81    |  99.17 |  72    | 66.75 | 76.67 | 63    |
+|  1 | japan    |  91.5  |  79.25 |  93.8  |  98.5  |  72.5  |  80.25 |  76.5  |  81.17 |  79.25 |  65    | 78.85 | 78.33 | 74    |
+|  2 | usa      | 166.95 | 119.84 | 138.78 | 146.62 | 112.14 | 108.7  | 110.5  | 118.39 | 107.27 | 109.43 | 88.83 | 84.54 | 86.95 |
++----+----------+--------+--------+--------+--------+--------+--------+--------+--------+--------+--------+-------+-------+-------+</code></pre>
+<p>Let's transform all "year" columns into one by calling <code class="language-python">.melt()</code> with suitable parameters. For the <code class="language-python">id_vars</code> argument, we set the column name that contains an identifier. In our case, it is the "origin". Further, we should set the <code class="language-python">value_vars</code> argument to the list of columns. <code class="language-python">.melt()</code> by default takes all other columns for <code class="language-python">value_vars</code> , so we just omit this argument. Then output the first 10 rows of the resulting dataframe:</p>
+<pre><code class="language-python">wide_df.melt(id_vars='origin').head(10)</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+----------+--------------+---------+
+|    | origin   |   model_year |   value |
+|----+----------+--------------+---------|
+|  0 | europe   |           70 |   86.2  |
+|  1 | japan    |           70 |   91.5  |
+|  2 | usa      |           70 |  166.95 |
+|  3 | europe   |           71 |   74    |
+|  4 | japan    |           71 |   79.25 |
+|  5 | usa      |           71 |  119.84 |
+|  6 | europe   |           72 |   79.6  |
+|  7 | japan    |           72 |   93.8  |
+|  8 | usa      |           72 |  138.78 |
+|  9 | europe   |           73 |   81.86 |
++----+----------+--------------+---------+</code></pre>
+<p>If we want to take, for example, only the last three columns from the original to reshape them in one, we pass their names to <code class="language-python">value_vars</code>:</p>
+<pre><code class="language-python">wide_df.melt(id_vars='origin', value_vars=wide_df.columns[-3:])</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+----------+--------------+---------+
+|    | origin   |   model_year |   value |
+|----+----------+--------------+---------|
+|  0 | europe   |           80 |   66.75 |
+|  1 | japan    |           80 |   78.85 |
+|  2 | usa      |           80 |   88.83 |
+|  3 | europe   |           81 |   76.67 |
+|  4 | japan    |           81 |   78.33 |
+|  5 | usa      |           81 |   84.54 |
+|  6 | europe   |           82 |   63    |
+|  7 | japan    |           82 |   74    |
+|  8 | usa      |           82 |   86.95 |
++----+----------+--------------+---------+</code></pre>
+<p>We can use <code class="language-python">.melt()</code> for collecting and storing the data from manually inputted tables. Spreadsheets with "wide format" are easier to fill and they can be immediately evaluated by sight, but for analyzing that data with Pandas, it is better to reshape it.</p>
+<h5 id="summary">Summary</h5>
+<p>As a result, now you know how to:</p>
+<ul>
+<li>reshape and evaluate data with pivot tables with <code class="language-python">.pivot()</code> and <code class="language-python">.pivot_table()</code>,</li>
+<li>transform data back to "stacked" format with <code class="language-python">.melt()</code>.</li>
+</ul>
+<p>You can quickly evaluate big tables with categorical data, find mutual feature frequencies, and transform manually inputted tables to a format that is easy to compute. Every time you get the feeling that you code too much to answer a simple question you should ask yourself: "Maybe the shape of my data is fuzzy and I need to change it?"</p>
+</div>

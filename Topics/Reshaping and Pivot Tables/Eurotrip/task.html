@@ -1,0 +1,18 @@
+<h2>Eurotrip</h2>
+<div class="step-text">
+<p></p>
+<p>Kevin has taken a gap year and has visited 7 countries in Europe. He's been doing a travel log (possibly in Excel), where he has recorded the duration of his stay in each country. Unfortunately, his entries are messed up. If we import this data to Pandas, the first entries would look like this:</p>
+<pre><code class="language-python">df.head()</code></pre>
+<p>Output:</p>
+<pre><code class="language-no-highlight">+----+----------------+-----------------+--------------------+
+|    | country        | main_goal       |   duration_of_stay |
+|----+----------------+-----------------+--------------------|
+|  0 | United Kingdom | cuisine tasting |                  5 |
+|  1 | Germany        | part-time job   |                 15 |
+|  2 | Czech Republic | music festival  |                  2 |
+|  3 | Georgia        | snowboarding    |                 14 |
+|  4 | Netherlands    | sightseeing     |                 19 |
++----+----------------+-----------------+--------------------+</code></pre>
+<p>Kevin is 100% sure that he never took the same activity in the same country twice.</p>
+<p>Print one Pandas instruction to help him compile the travel data in one convenient table. Please use all the argument names in that instruction (e.g. <code class="language-python">columns='main_goal'</code>, etc.)</p><br><b>Sample Input:</b><br><pre><code class="language-no-highlight"></code></pre><br><b>Sample Output:</b><br><pre><code class="language-no-highlight">main_goal       chilling  cuisine tasting  ...  snowboarding  street photography<br>country                                    ...                                  <br>Czech Republic      17.0             11.0  ...           NaN                11.0<br>Georgia             13.0             19.0  ...          14.0                 6.0<br>Germany             14.0              4.0  ...           NaN                 8.0<br>Greece               2.0              3.0  ...          12.0                 3.0<br>Netherlands          4.0              4.0  ...          13.0                11.0<br>Spain                7.0              6.0  ...           NaN                 NaN<br>United Kingdom       NaN              5.0  ...           4.0                 8.0<br><br>[7 rows x 7 columns]</code></pre><br><br><br><font color="gray">Memory limit: 256 MB</font><br><font color="gray">Time limit: 15 seconds</font><br><br>
+</div>

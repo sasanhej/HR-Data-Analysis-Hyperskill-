@@ -1,0 +1,73 @@
+<div class="step-text">
+<h5 id="description">Description</h5>
+<p>Your datasets are ready for merging! It will make data analysis much more straightforward.</p>
+<p>Use concatenation to generate a dataset with information from both offices. Use the left merging by index to merge the previously created dataset with the HR's dataset. When joining, generate a column containing information about each row's origin. Keep only those employees' records that are present in both datasets.</p>
+<p>Recall the data structure of tables:</p>
+<ol>
+<li><em>A_office_data.xml</em> and <em>B_office_data.xml</em>:
+
+	<ul>
+<li><code class="java">number_project</code> — number of projects an employee has worked on;</li>
+<li><code class="java">average_monthly_hours</code> — typical workload per month in hours;</li>
+<li><code class="java">time_spend_company</code> — how many years an employee has worked in the company;</li>
+<li><code class="java">Work_accident</code> — whether an employee has had an injury at work;</li>
+<li><code class="java">promotion_last_5years</code> — whether an employee has had any promotions during the last five years;</li>
+<li><code class="java">Department</code> — employee's department;</li>
+<li><code class="java">salary</code> — employee's salary rate;</li>
+<li><code class="java">employee_office_id</code> — employee's ID.</li>
+</ul>
+</li>
+<li><em>hr_data.xml</em>:
+	<ul>
+<li><code class="java">satisfaction_level</code> — how well an employee performs their job;</li>
+<li><code class="java">last_evaluation</code> — the last evaluation score of an employee;</li>
+<li><code class="java">left</code> — whether an employee has left the company;</li>
+<li><code class="java">employee_id</code> — employee's ID in the company.</li>
+</ul>
+</li>
+</ol>
+<h5 id="objectives">Objectives</h5>
+<p>It's time to create one comprehensive dataset! The first three steps are the same as for Stage 1:</p>
+<ol>
+<li>Load all three datasets. Remember, data is stored in <em>XML</em> format;</li>
+<li>Explore the data — check the axes, get the shapes of the DataFrames, use <code class="java">df.info()</code> to check whether there are null values and review the data types;</li>
+<li>Reindex all three datasets in the same way as in the previous stage;</li>
+<li>Use the <code class="java">concat()</code> function from <code class="java">pandas</code> to generate a unified dataset for offices A and B;</li>
+<li>Use <code class="java">df.merge()</code> to carry out the left merging of the unified office dataset with HR's dataset. Merge both datasets by index — use <code class="java">left_index</code> and <code class="java">right_index</code> parameters. Set <code class="java">indicator=True</code> in <code class="java">df.merge()</code>. For the final table, leave only those employees whose data is contained in both datasets;</li>
+<li>Drop the <code class="java">employee_office_id</code>, <code class="java">employee_id</code> columns and the new column that contains a row source;</li>
+<li>Sort the final dataset by index;</li>
+<li>Print two Python lists: the final DataFrame index and the column names. Output each list on a separate line.</li>
+</ol>
+<h5 id="example">Example</h5>
+<ul>
+<li><em>Office A data (most of the columns are omitted)</em>
+<pre><code class="language-no-highlight">       number_project  employee_office_id
+A2                  5                   2
+A4                  5                   4
+A6                  2                   6</code></pre>
+</li>
+<li><em>Office B data (most of the columns are omitted)</em>
+<pre><code class="language-no-highlight">       number_project  employee_office_id
+B1                  6                   1
+B3                  4                   3
+B5                  5                   5</code></pre>
+</li>
+<li><em>HR data (most of the columns are omitted)</em>
+<pre><code class="language-no-highlight">             satisfaction_level employee_id
+employee_id
+A1                         0.38          A1
+A4                         0.72          A4
+B1                         0.35          B1
+B5                         0.91          B5</code></pre>
+</li>
+<li><em>The resulting dataset (most of the columns are omitted)</em>
+<pre><code class="language-no-highlight">    number_project  satisfaction_level
+A4               5                0.72
+B1               6                0.35
+B5               5                0.91</code></pre>
+</li>
+</ul>
+<p><em>Output:</em></p>
+<pre><code class="language-no-highlight">['A4', 'B1', 'B5']
+['number_project', 'satisfaction_level']</code></pre>
+</div>
